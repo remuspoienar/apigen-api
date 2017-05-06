@@ -8,9 +8,9 @@ class ApiProject < ApplicationRecord
   accepts_nested_attributes_for :api_resources, reject_if: :all_blank, allow_destroy: true
 
   def as_json(opts={})
-    result = self.attributes.symbolize_keys.except(:created_by_id, :created_at, :updated_at)
+    result = self.attributes.symbolize_keys.except(:created_by_id, :updated_at)
 
-    result[:created_by] = self.created_by.as_json
+    # result[:created_by] = self.created_by.as_json
     result[:api_resources] = self.api_resources.to_a.map{|api_resource| api_resource.as_json }
 
     result

@@ -18,9 +18,7 @@ class AuthenticateUser
     user = ApiUser.find_by!(email: email)
 
     if user.authenticate(password)
-      token = JsonWebToken.encode(user_id: user.id)
-      Session.create!(token: token, api_user: user)
-      return token
+      return JsonWebToken.encode(user_id: user.id)
     end
 
     raise ExceptionHandler::InvalidCredentials

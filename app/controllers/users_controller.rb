@@ -10,7 +10,7 @@ class UsersController < ApplicationController
   end
 
   def me
-    render json: current_user.attributes, status: :ok
+    render json: current_user.attributes.symbolize_keys.slice(:id, :email, :name), status: :ok
   end
 
   def update

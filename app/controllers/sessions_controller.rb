@@ -4,12 +4,11 @@ class SessionsController < ApplicationController
 
   def create
     token = auth_service.call
-    response.headers['']
+
     render json: {token: token}, status: :ok
   end
 
   def destroy
-    current_user.session.destroy!
     render json: {message: Message.user_signed_out}, status: :ok
   end
 

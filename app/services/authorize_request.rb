@@ -16,17 +16,13 @@ class AuthorizeRequest
   attr_reader :headers
 
   def authorize_request
-    @user = session.api_user if token_payload && session.valid_for_user?(token_payload[:user_id])
+    @user = ApiUser.find(token_payload[:user_id]) if token_payload
   rescue ActiveRecord::RecordNotFound
     raise ExceptionHandler::InvalidToken
   end
 
   def token_payload
-    @token_payload ||= JsonWebToken.decode(session.token)
-  end
-
-  def session
-    @session ||= Session.find_by!(token: token)
+    @token_payload ||= JsonWebToken.decode(token)
   end
 
   def token
