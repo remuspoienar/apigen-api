@@ -4,6 +4,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :api_projects, only: [:index, :create, :show, :update, :destroy]
 
+      resources :trait_options, only: [:index]
+      resources :db_type_options, only: [:index]
+
       # get '' => 'api_projects#index'
       # get '' => 'api_projects#show'
       # get '' => 'api_projects#create'

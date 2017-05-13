@@ -3,9 +3,14 @@ class ApiValidation < ApplicationRecord
 
   validates_uniqueness_of :trait, scope: :api_attribute_id
 
-  TRAITS_OPTIONS = {
+  TRAIT_OPTIONS = {
       length: [:min, :max],
-      format: [:regexp]
+      format: [:regexp],
+      presence: [],
+      inclusion: [:array],
+      exclusion: [:array],
+      uniqueness: [],
+      numericality: []
   }.freeze
 
   def as_json(opts={})

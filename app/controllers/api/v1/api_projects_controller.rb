@@ -19,12 +19,14 @@ class Api::V1::ApiProjectsController < ApplicationController
   end
 
   def destroy
+    current_user.api_projects.find(params[:id]).destroy
+    render json: {}, status: :ok
   end
 
   private
 
   def create_api_project_params
-    params.require(:api_project).permit(
+    params.permit(
         :name,
         api_resources_attributes: [
             :name,
@@ -48,23 +50,26 @@ class Api::V1::ApiProjectsController < ApplicationController
 
   def update_api_project_params
     params.permit(
-        :id,
         :name,
         api_resources_attributes: [
             :id,
+            :_destroy,
             :name,
             api_attributes_attributes: [
                 :id,
+                :_destroy,
                 :name,
                 :db_type,
                 api_validations_attributes: [
                     :id,
+                    :_destroy,
                     :trait,
                     :advanced_options
                 ]
             ],
             api_associations_attributes: [
                 :id,
+                :_destroy,
                 :resource_name,
                 :resource_label,
                 :kind,

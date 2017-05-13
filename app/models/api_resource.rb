@@ -1,8 +1,8 @@
 class ApiResource < ApplicationRecord
   belongs_to :api_project
 
-  has_many :api_attributes, inverse_of: :api_resource
-  has_many :api_associations, inverse_of: :api_resource
+  has_many :api_attributes, dependent: :destroy, inverse_of: :api_resource
+  has_many :api_associations, dependent: :destroy, inverse_of: :api_resource
 
   validates_uniqueness_of :name, scope: :api_project_id
 
