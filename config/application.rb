@@ -28,6 +28,14 @@ module Apigen
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    config.generators do |g|
+      g.orm             :active_record
+      g.template_engine :erb
+      g.test_framework  false
+      g.stylesheets     false
+      g.javascripts     false
+    end
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
