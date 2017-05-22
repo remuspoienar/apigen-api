@@ -19,7 +19,7 @@ class ApiValidation < ApplicationRecord
 
   def as_code
     result = "\t" * 6
-    result << "#{trait}: #{formatted_advanced_options}, \n"
+    result << "#{trait}: #{formatted_advanced_options}"
     result
   end
 

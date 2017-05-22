@@ -16,6 +16,10 @@ class ApiProject < ApplicationRecord
     result
   end
 
+  def formatted_name
+    name.downcase.gsub(' ', '_')
+  end
+
 end
 
 
