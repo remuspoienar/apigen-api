@@ -17,4 +17,8 @@ class ApiResource < ApplicationRecord
 
     result
   end
+
+  def table_name
+    name.downcase.gsub(' ', '_').pluralize
+  end
 end

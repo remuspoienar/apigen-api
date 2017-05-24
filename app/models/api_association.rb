@@ -15,12 +15,14 @@ class ApiAssociation < ApplicationRecord
     result
   end
 
-  private
-
   def formatted_resource_label
     result = resource_label.underscore.gsub(' ', '_')
     result.singularize
     result = result.pluralize if kind == 'has_many'
     result
+  end
+
+  def belongs_to?
+    kind == 'belongs_to'
   end
 end
