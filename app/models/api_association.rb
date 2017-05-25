@@ -9,8 +9,12 @@ class ApiAssociation < ApplicationRecord
 
   def as_code
     result = ''
-    result << "\t#{kind} :#{formatted_resource_label}, class_name: '#{resource_name}', inverse_of: :#{api_resource.name.underscore}\n"
-    result << "\taccepts_nested_attributes_for :#{formatted_resource_label}, reject_if: :all_blank, allow_destroy: true\n"
+    result << "\t#{kind} :#{formatted_resource_label}, class_name: '#{resource_name}'"
+    if has_many?
+      fk = "#{formatted_resource_label.singularize}_#{api_resource.formatted_name}"
+      result << ", inverse_of: :#{fk}, foreign_key: '#{fk}_id', dependent: :destroy\n"
+      result << "\taccepts_nested_attributes_for :#{formatted_resource_label}, reject_if: :all_blank, allow_destroy: true\n" if has_many?
+    end
     result << "\n"
     result
   end
@@ -24,5 +28,9 @@ class ApiAssociation < ApplicationRecord
 
   def belongs_to?
     kind == 'belongs_to'
+  end
+
+  def has_many?
+    kind == 'has_many'
   end
 end

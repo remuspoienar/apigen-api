@@ -7,6 +7,11 @@ associations = ''
 api_resource.api_associations.each do |assoc|
   associations << assoc.as_code
 end
+
+api_resource.implicit_belongs_to_associations.each do |assoc|
+  associations << "\tbelongs_to :#{assoc[:label]}, class_name: '#{assoc[:class_name]}', foreign_key: '#{assoc[:label]}_id',  inverse_of: :#{assoc[:inverse_of_label]}\n"
+end
+
 associations
 }
 

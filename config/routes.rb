@@ -7,6 +7,9 @@ Rails.application.routes.draw do
       resources :trait_options, only: [:index]
       resources :db_type_options, only: [:index]
 
+      get '/launch_project/:id' => 'api_projects#launch'
+      get '/shutdown_project/:id' => 'api_projects#shutdown'
+
       # get '' => 'api_projects#index'
       # get '' => 'api_projects#show'
       # get '' => 'api_projects#create'

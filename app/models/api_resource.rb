@@ -18,7 +18,32 @@ class ApiResource < ApplicationRecord
     result
   end
 
+  def formatted_name
+    name.downcase.gsub(' ', '_')
+  end
+
   def table_name
-    name.downcase.gsub(' ', '_').pluralize
+    formatted_name.pluralize
+  end
+
+  def belongs_to_relation_resources
+    api_associations.where(kind: 'belongs_to').map { |assoc| ApiResource.find_by(name: assoc.resource_name, api_project: api_project) }.uniq
+  end
+
+  def nested_attributes_whitelist
+    api_associations.where(kind: 'has_many').map { |assoc| "#{assoc.formatted_resource_label}_attributes: [#{ApiResource.find_by(name: assoc.resource_name, api_project: api_project).attributes_including_fk.join(', ')}]" }
+  end
+
+  def attributes_including_fk
+    arr = api_attributes.map(&:formatted_name)
+    arr += implicit_belongs_to_associations.map { |assoc| "#{assoc[:label]}_id" }
+    arr.map { |attr| ":#{attr}" }
+  end
+
+  def implicit_belongs_to_associations
+    result = ApiAssociation.where(kind: 'has_many', resource_name: name)
+                 .select { |assoc| assoc.api_resource.api_project == api_project }
+                 .map { |assoc| {label: "#{assoc.formatted_resource_label.singularize}_#{assoc.api_resource.formatted_name}", class_name: assoc.api_resource.name, table_name: assoc.api_resource.table_name, inverse_of_label: assoc.formatted_resource_label} }
+    result
   end
 end

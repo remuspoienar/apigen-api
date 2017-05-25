@@ -23,6 +23,16 @@ class Api::V1::ApiProjectsController < ApplicationController
     render json: {}, status: :ok
   end
 
+  def launch
+    current_user.api_projects.find(params[:id]).launch
+    render json: {message: "ApiProject ##{params[:id]} launched successfully"}, stauts: :ok
+  end
+
+  def shutdown
+    current_user.api_projects.find(params[:id]).shutdown
+    render json: {message: "ApiProject ##{params[:id]} shut down successfully"}, stauts: :ok
+  end
+
   private
 
   def create_api_project_params
