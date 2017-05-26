@@ -9,7 +9,7 @@ api_resource.api_associations.each do |assoc|
 end
 
 api_resource.implicit_belongs_to_associations.each do |assoc|
-  associations << "\tbelongs_to :#{assoc[:label]}, class_name: '#{assoc[:class_name]}', foreign_key: '#{assoc[:label]}_id',  inverse_of: :#{assoc[:inverse_of_label]}\n"
+  associations << "\tbelongs_to :#{assoc[:label]}, class_name: '#{assoc[:class_name]}', foreign_key: '#{assoc[:label]}_id',  inverse_of: :#{assoc[:inverse_of_label]}, optional: #{assoc[:optional]}\n"
 end
 
 associations
@@ -20,7 +20,7 @@ associations
 validations = ''
 api_resource.api_attributes.each do |attribute|
   next if attribute.api_validations.blank?
-  validations << "\tvalidates :#{attribute.name},\n"
+  validations << "\tvalidates :#{attribute.formatted_name},\n"
   trait_options = []
   attribute.api_validations.each do |validation|
     trait_options << validation.as_code

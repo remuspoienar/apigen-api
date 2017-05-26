@@ -8,7 +8,7 @@ api_project.api_resources.each do |resource|
   str << "\t\tcreate_table :#{resource.table_name} do |t|\n"
   
   resource.api_attributes.each do |attribute|
-    str << "\t\t\tt.#{attribute.db_type} :#{attribute.name}\n"
+    str << "\t\t\tt.#{attribute.db_type} :#{attribute.formatted_name}\n"
   end
   
   str << "\t\t\tt.timestamps\n"

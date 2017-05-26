@@ -22,7 +22,7 @@ class ApiControllerGenerator < Rails::Generators::NamedBase
     return @permitted_attributes_list unless @permitted_attributes_list.blank?
 
     resource = ApiResource.find_by(name: class_name, api_project: api_project)
-    permitted_attributes = resource.api_attributes.map(&:name)
+    permitted_attributes = resource.api_attributes.map(&:formatted_name)
     permitted_attributes += resource.implicit_belongs_to_associations.map { |assoc| "#{assoc[:label]}_id" }
     @permitted_attributes_list = permitted_attributes.map { |name| ":#{name}" }.join(', ')
     @permitted_attributes_list << ', ' + resource.nested_attributes_whitelist.join(', ') unless resource.nested_attributes_whitelist.blank?

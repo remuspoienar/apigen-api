@@ -9,12 +9,15 @@ class Api::V1::ApiProjectsController < ApplicationController
   end
 
   def create
-    current_user.api_projects.create!(create_api_project_params)
+    api_project = current_user.api_projects.create!(create_api_project_params)
+    api_project.generate_code
     render json: {}, status: :created
   end
 
   def update
-    current_user.api_projects.find(params[:id]).update!(update_api_project_params)
+    api_project = current_user.api_projects.find(params[:id])
+    api_project.update!(update_api_project_params)
+    api_project.generate_code
     render json: {}, status: :ok
   end
 
@@ -52,6 +55,7 @@ class Api::V1::ApiProjectsController < ApplicationController
                 :resource_name,
                 :resource_label,
                 :kind,
+                :mandatory,
                 :advanced_options
             ]
         ],
@@ -83,6 +87,7 @@ class Api::V1::ApiProjectsController < ApplicationController
                 :resource_name,
                 :resource_label,
                 :kind,
+                :mandatory,
                 :advanced_options
             ]
         ],

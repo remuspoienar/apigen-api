@@ -14,6 +14,7 @@ class ApiResource < ApplicationRecord
 
     result[:api_attributes] = self.api_attributes.to_a.map{|api_attribute| api_attribute.as_json }
     result[:api_associations] = self.api_associations.to_a.map{|api_association| api_association.as_json }
+    result[:reverse_associations] = self.implicit_belongs_to_associations
 
     result
   end
@@ -41,9 +42,16 @@ class ApiResource < ApplicationRecord
   end
 
   def implicit_belongs_to_associations
-    result = ApiAssociation.where(kind: 'has_many', resource_name: name)
-                 .select { |assoc| assoc.api_resource.api_project == api_project }
-                 .map { |assoc| {label: "#{assoc.formatted_resource_label.singularize}_#{assoc.api_resource.formatted_name}", class_name: assoc.api_resource.name, table_name: assoc.api_resource.table_name, inverse_of_label: assoc.formatted_resource_label} }
-    result
+    ApiAssociation.where(kind: 'has_many', resource_name: name)
+        .select { |assoc| assoc.api_resource.api_project == api_project }
+        .map do |assoc|
+      {
+          label: "#{assoc.formatted_resource_label.singularize}_#{assoc.api_resource.formatted_name}",
+          class_name: assoc.api_resource.name,
+          table_name: assoc.api_resource.table_name,
+          inverse_of_label: assoc.formatted_resource_label,
+          optional: !assoc.mandatory
+      }
+    end
   end
 end

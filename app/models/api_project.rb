@@ -7,8 +7,6 @@ class ApiProject < ApplicationRecord
 
   accepts_nested_attributes_for :api_resources, reject_if: :all_blank, allow_destroy: true
 
-  after_save { system "cd #{Rails.root} ; bundle exec rails generate application_template #{formatted_name} api_project=#{id} ; rm ~/projects/#{formatted_name}_template.rb  ; mv application_templates/#{formatted_name}_template.rb ~/projects ; cd ~/projects ; rm -rf #{formatted_name} ; rails _5.0.3_ new #{formatted_name} -T --database=\"postgresql\" --api -m #{formatted_name}_template.rb" }
-
   def as_json(opts={})
     result = self.attributes.symbolize_keys.except(:created_by_id, :updated_at)
 
@@ -22,19 +20,29 @@ class ApiProject < ApplicationRecord
     name.downcase.gsub(' ', '_')
   end
 
+  def generate_code
+    shutdown if launched?
+    system "cd #{Rails.root} ; bundle exec rails generate application_template #{formatted_name} api_project=#{id} ; rm ~/projects/#{formatted_name}_template.rb  ; mv application_templates/#{formatted_name}_template.rb ~/projects ; cd ~/projects ; rm -rf #{formatted_name} ; rails _5.0.3_ new #{formatted_name} -T --database=\"postgresql\" --api -m #{formatted_name}_template.rb"
+  end
+
   def launch
+    # ([*3000..3500] - [3000, 3003]).sample
+    return if launched
     fork do
-      system "cd ~/projects/#{formatted_name} ; bundle exec rails server -p #{([*3000..3500] - [3000, 3003]).sample}"
+      system "cd ~/projects/#{formatted_name} ; bundle exec rails server -p #{4000}"
     end
+    update_attribute(:launched, true)
   end
 
   def shutdown
+    return unless launched
     fork do
       path = File.join(Rails.root, '..', formatted_name, 'tmp', 'pids')
       pid = File.read(File.open(path + '/server.pid'))
       puts "Killing rails server with pid: #{pid}"
       system "kill -9 #{pid}"
     end
+    update_attribute(:launched, false)
   end
 
 end
