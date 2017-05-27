@@ -5,7 +5,11 @@ class ApiProject < ApplicationRecord
 
   validates_uniqueness_of :name, scope: :created_by_id
 
+  validates_uniqueness_of :api_host, case_sensitive: true
+
   accepts_nested_attributes_for :api_resources, reject_if: :all_blank, allow_destroy: true
+
+  after_create :allocate_host
 
   def as_json(opts={})
     result = self.attributes.symbolize_keys.except(:created_by_id, :updated_at)
@@ -20,16 +24,28 @@ class ApiProject < ApplicationRecord
     name.downcase.gsub(' ', '_')
   end
 
+  def allocate_host
+    base = 'http://localhost:'
+    (3004..5000).each do |port|
+      self.api_host = base + port.to_s
+      if valid?
+        save!
+        return
+      end
+    end
+    raise 'Could not find an available PORT'
+  end
+
   def generate_code
     shutdown if launched?
     system "cd #{Rails.root} ; bundle exec rails generate application_template #{formatted_name} api_project=#{id} ; rm ~/projects/#{formatted_name}_template.rb  ; mv application_templates/#{formatted_name}_template.rb ~/projects ; cd ~/projects ; rm -rf #{formatted_name} ; rails _5.0.3_ new #{formatted_name} -T --database=\"postgresql\" --api -m #{formatted_name}_template.rb"
   end
 
   def launch
-    # ([*3000..3500] - [3000, 3003]).sample
     return if launched
+    port = api_host.split(':').last
     fork do
-      system "cd ~/projects/#{formatted_name} ; bundle exec rails server -p #{4000}"
+      system "cd ~/projects/#{formatted_name} ; bundle exec rails server -p #{port}"
     end
     update_attribute(:launched, true)
   end

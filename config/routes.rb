@@ -2,13 +2,13 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :api_projects, only: [:index, :create, :show, :update, :destroy]
+      resources :api_projects, only: [:index, :create, :show, :update, :destroy] do
+        get :launch, on: :member
+        get :shutdown, on: :member
+      end
 
       resources :trait_options, only: [:index]
       resources :db_type_options, only: [:index]
-
-      get '/launch_project/:id' => 'api_projects#launch'
-      get '/shutdown_project/:id' => 'api_projects#shutdown'
 
       # get '' => 'api_projects#index'
       # get '' => 'api_projects#show'

@@ -6,6 +6,9 @@ require_relative './apigen-api/lib/generators/api_controller/api_controller_gene
 require 'active_record'
 require 'yaml'
 
+gem 'rack-cors', group: 'development'
+gem 'bcrypt', group: 'development'
+
 db_config = YAML.load_file('../apigen-api/config/database.yml')
 db_config['development']['pool'] = 5
 ActiveRecord::Base.establish_connection(db_config['development'])
@@ -27,6 +30,15 @@ end
 str
 }
 Rails::Generators.invoke(:api_migration, ["App", "api_project=#{api_project.id}"])
+
+application <<-CONFIG
+config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options]
+      end
+    end
+CONFIG
 
 rails_command("db:drop")
 rails_command("db:create")
