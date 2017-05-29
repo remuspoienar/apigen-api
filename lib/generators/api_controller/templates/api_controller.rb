@@ -4,8 +4,13 @@ class #{controller_class_name}Controller < ApplicationController
 
   # GET /#{plural_file_name}
   def index
-    @#{plural_file_name} = #{class_name}.all
-    render json: @#{plural_file_name}
+    chunk = pagination_params[:limit].blank? ? #{class_name}.all : #{class_name}.limit(pagination_params[:limit])
+    count = chunk.count
+    @#{plural_file_name} = Kaminari.paginate_array(chunk.order("\#{sort_column} \#{sort_direction.upcase}"))
+    @#{plural_file_name} = @#{plural_file_name}.page(pagination_params[:page]) unless pagination_params[:page].blank?
+    @#{plural_file_name} = @#{plural_file_name}.per(pagination_params[:per]) unless pagination_params[:per].blank?
+    @#{plural_file_name} = @#{plural_file_name}.map(&:attributes).map{ |x| x.slice(*params[:includes].split(','))} unless params[:includes].blank?
+    render json: {rows: @#{plural_file_name}, page: {count: count}}, status: :ok
   end
 
   # GET /#{plural_file_name}/1
@@ -47,6 +52,22 @@ class #{controller_class_name}Controller < ApplicationController
   # whitelist parameters
   def #{file_name}_params
     params.require(:#{file_name}).permit(#{permitted_attributes_list})
+  end
+
+  def pagination_params
+    params.permit(:limit, :per, :page, :includes)
+  end
+
+  def sort_params
+    params.permit(:sort_column, :sort_direction)
+  end
+
+  def sort_direction
+    params[:sort_direction].in?(%w{asc desc}) ? params[:sort_direction] : 'asc'
+  end
+
+  def sort_column
+    #{class_name}.column_names.include?(params[:sort_column]) ? params[:sort_column] : 'id'
   end
 end
 CODE
