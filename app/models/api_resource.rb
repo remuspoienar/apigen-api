@@ -9,6 +9,8 @@ class ApiResource < ApplicationRecord
   accepts_nested_attributes_for :api_attributes, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :api_associations, reject_if: :all_blank, allow_destroy: true
 
+  before_save :set_last_table_name
+
   def as_json(opts={})
     result = self.attributes.symbolize_keys.except(:api_project_id, :created_at, :updated_at)
 
@@ -53,5 +55,10 @@ class ApiResource < ApplicationRecord
           optional: !assoc.mandatory
       }
     end
+  end
+
+  def set_last_table_name
+    self.advanced_options ||= {}
+    self.advanced_options['last_table_name'] = name_was.blank? ? table_name : name_was.downcase.gsub(' ', '_').pluralize
   end
 end

@@ -2,6 +2,7 @@
 require_relative './apigen-api/lib/generators/api_model/api_model_generator.rb'
 require_relative './apigen-api/lib/generators/api_migration/api_migration_generator.rb'
 require_relative './apigen-api/lib/generators/api_controller/api_controller_generator.rb'
+require_relative './apigen-api/lib/generators/backup_task/backup_task_generator.rb'
 
 require 'active_record'
 require 'yaml'
@@ -30,7 +31,8 @@ api_project.api_resources.each do |resource|
 end
 str
 }
-Rails::Generators.invoke(:api_migration, ["App", "api_project=#{api_project.id}"])
+Rails::Generators.invoke(:api_migration, ['App', 'api_project=#{api_project.id}'])
+Rails::Generators.invoke(:backup_task, ['Backup Task', 'api_project=#{api_project.id}'])
 
 # bulk delete routing
 route <<-ROUTE
@@ -49,9 +51,11 @@ config.middleware.insert_before 0, Rack::Cors do
     end
 CONFIG
 
-rails_command("db:drop")
-rails_command("db:create")
-rails_command("db:migrate")
+rake 'backup:store' # save data
+
+rails_command("db:migrate:reset")
+
+rake 'backup:load' # restore data
 
 after_bundle do
   run("bin/spring stop")
