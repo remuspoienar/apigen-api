@@ -4,12 +4,14 @@ class #{controller_class_name}Controller < ApplicationController
 
   # GET /#{plural_file_name}
   def index
-    chunk = pagination_params[:limit].blank? ? #{class_name}.all : #{class_name}.limit(pagination_params[:limit])
-    count = chunk.count
-    @#{plural_file_name} = Kaminari.paginate_array(chunk.order("\#{sort_column} \#{sort_direction.upcase}"))
-    @#{plural_file_name} = @#{plural_file_name}.page(pagination_params[:page]) unless pagination_params[:page].blank?
+    q = filter_params.blank? ? #{class_name} : #{class_name}.ransack(filter_params).result
+    @#{plural_file_name} = q.order("\#{sort_column} \#{sort_direction.upcase}")
+    @#{plural_file_name} = @#{plural_file_name}.limit(pagination_params[:limit]) unless pagination_params[:limit].blank?
+    count = @#{plural_file_name}.count
+    @#{plural_file_name} = @#{plural_file_name}.select(*includes_params) unless includes_params.blank?
+    @#{plural_file_name} = Kaminari.paginate_array(@#{plural_file_name}).page(pagination_params[:page]) unless pagination_params[:page].blank?
     @#{plural_file_name} = @#{plural_file_name}.per(pagination_params[:per]) unless pagination_params[:per].blank?
-    @#{plural_file_name} = @#{plural_file_name}.map(&:attributes).map{ |x| x.slice(*params[:includes].split(','))} unless params[:includes].blank?
+
     render json: {rows: @#{plural_file_name}, page: {count: count}}, status: :ok
   end
 
@@ -43,6 +45,10 @@ class #{controller_class_name}Controller < ApplicationController
     @#{file_name}.destroy
   end
 
+  def bulk_delete
+    #{class_name}.where(id:  bulk_ids).destroy_all
+  end
+
   private
 
   def set_#{file_name}
@@ -52,6 +58,18 @@ class #{controller_class_name}Controller < ApplicationController
   # whitelist parameters
   def #{file_name}_params
     params.require(:#{file_name}).permit(#{permitted_attributes_list})
+  end
+
+  def bulk_ids
+    params.permit(ids: [])[:ids]
+  end
+
+  def filter_params
+    params[:q].blank? ? nil : params.require(:q).permit!
+  end
+
+  def includes_params
+    params.permit(includes: []).blank? ? nil : params.permit(includes: [])[:includes].select{|attr| #{class_name}.column_names.include?(attr) }
   end
 
   def pagination_params

@@ -6,8 +6,9 @@ require_relative './apigen-api/lib/generators/api_controller/api_controller_gene
 require 'active_record'
 require 'yaml'
 
-gem 'rack-cors', group: 'development'
-gem 'bcrypt', group: 'development'
+gem 'rack-cors'
+gem 'bcrypt'
+gem 'ransack'
 
 db_config = YAML.load_file('../apigen-api/config/database.yml')
 db_config['development']['pool'] = 5
@@ -24,12 +25,20 @@ str = ''
 api_project.api_resources.each do |resource|
   str << "Rails::Generators.invoke(:api_model, ['#{resource.name}', 'api_project=#{api_project.id}'])\n"
   str << "Rails::Generators.invoke(:api_controller, ['#{resource.name}', 'api_project=#{api_project.id}'])\n"
-  str << "route 'resources :#{resource.table_name}'\n"
+  str << "route 'resources :#{resource.table_name}, concerns: :bulk_deletable'\n"
   str << "\n"
 end
 str
 }
 Rails::Generators.invoke(:api_migration, ["App", "api_project=#{api_project.id}"])
+
+# bulk delete routing
+route <<-ROUTE
+concern :bulk_deletable do
+    delete :index, on: :collection, action: :bulk_delete
+  end
+ROUTE
+
 
 application <<-CONFIG
 config.middleware.insert_before 0, Rack::Cors do
