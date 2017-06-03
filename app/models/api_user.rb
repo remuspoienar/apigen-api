@@ -1,12 +1,8 @@
 class ApiUser < ApplicationRecord
 
-  has_one :session, dependent: :destroy
   has_many :api_projects, foreign_key: 'created_by_id', dependent: :destroy
-  has_many :api_resources, through: :api_projects
 
   before_save {self.email = email.downcase}
-
-  before_destroy { self.session.destroy! if self.session.present? }
 
   validates :name, presence: true, length: {maximum: 50}
 

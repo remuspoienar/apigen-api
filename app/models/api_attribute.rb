@@ -4,6 +4,7 @@ class ApiAttribute < ApplicationRecord
   has_many :api_validations, inverse_of: :api_attribute
 
   validates_uniqueness_of :name, scope: :api_resource_id
+  validates_presence_of :name, :db_type, :api_resource
 
   accepts_nested_attributes_for :api_validations, reject_if: :all_blank, allow_destroy: true
 

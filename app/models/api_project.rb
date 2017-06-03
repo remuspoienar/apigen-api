@@ -4,6 +4,7 @@ class ApiProject < ApplicationRecord
   has_many :api_resources, dependent: :destroy, inverse_of: :api_project
 
   validates_uniqueness_of :name, scope: :created_by_id
+  validates_presence_of :name, :created_by
 
   validates_uniqueness_of :api_host, case_sensitive: true
 

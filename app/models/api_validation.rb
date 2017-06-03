@@ -2,6 +2,7 @@ class ApiValidation < ApplicationRecord
   belongs_to :api_attribute
 
   validates_uniqueness_of :trait, scope: :api_attribute_id
+  validates_presence_of :trait, :api_attribute
 
   TRAIT_OPTIONS = {
       length: [:min, :max],

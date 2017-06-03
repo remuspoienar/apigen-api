@@ -52,3 +52,4 @@ gem 'jwt'
 
 gem 'kaminari'
 gem 'ransack'
+gem 'rails-erd'

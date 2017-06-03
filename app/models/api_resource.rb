@@ -5,6 +5,7 @@ class ApiResource < ApplicationRecord
   has_many :api_associations, dependent: :destroy, inverse_of: :api_resource
 
   validates_uniqueness_of :name, scope: :api_project_id
+  validates_presence_of :name, :api_project
 
   accepts_nested_attributes_for :api_attributes, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :api_associations, reject_if: :all_blank, allow_destroy: true
