@@ -1,5 +1,7 @@
 class Api::V1::ApiProjectsController < ApplicationController
 
+  before_action :set_api_project, only: [:show, :update, :destroy, :launch, :shutdown, :permissions]
+
   def index
     render json: current_user.api_projects, status: :ok
   end
@@ -36,7 +38,15 @@ class Api::V1::ApiProjectsController < ApplicationController
     render json: {message: "ApiProject ##{params[:id]} shut down successfully"}, stauts: :ok
   end
 
+  def permissions
+    render json: @api_project.api_resources.map(&:permissions), status: :ok
+  end
+
   private
+
+  def set_api_project
+    @api_project ||= ApiProject.find(params[:id])
+  end
 
   def create_api_project_params
     params.permit(
@@ -48,7 +58,7 @@ class Api::V1::ApiProjectsController < ApplicationController
                 :db_type,
                 api_validations_attributes: [
                     :trait,
-                    :advanced_options
+                    {advanced_options: [:min, :max, :regexp, :list]}
                 ]
             ],
             api_associations_attributes: [
@@ -56,7 +66,11 @@ class Api::V1::ApiProjectsController < ApplicationController
                 :resource_label,
                 :kind,
                 :mandatory,
-                :advanced_options
+                advanced_options: []
+            ],
+            permissions_attributes: [
+                {actions: []},
+                :api_user_id
             ]
         ],
     )
@@ -78,7 +92,7 @@ class Api::V1::ApiProjectsController < ApplicationController
                     :id,
                     :_destroy,
                     :trait,
-                    :advanced_options
+                    {advanced_options: [:min, :max, :regexp, :list]}
                 ]
             ],
             api_associations_attributes: [
@@ -88,7 +102,13 @@ class Api::V1::ApiProjectsController < ApplicationController
                 :resource_label,
                 :kind,
                 :mandatory,
-                :advanced_options
+                {advanced_options: []}
+            ],
+            permissions_attributes: [
+                :id,
+                :api_user_id,
+                {actions: []},
+                :_destroy
             ]
         ],
     )

@@ -2,6 +2,10 @@ class UsersController < ApplicationController
 
   skip_before_action :authorize_request!, only: :create
 
+  def index
+    render json: ApiUser.all, status: :ok
+  end
+
   def create
     user = ApiUser.create!(user_params)
     auth_token = AuthenticateUser.new(user.email, user.password).call

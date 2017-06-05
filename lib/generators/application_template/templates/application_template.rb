@@ -51,11 +51,11 @@ config.middleware.insert_before 0, Rack::Cors do
     end
 CONFIG
 
-rake 'backup:store' # save data
+#{'rake "backup:store" # save data' if api_project.created_at < api_project.updated_at}
 
 rails_command("db:migrate:reset")
 
-rake 'backup:load' # restore data
+#{'rake "backup:load" # restore data' if api_project.created_at < api_project.updated_at}
 
 after_bundle do
   run("bin/spring stop")

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170603132143) do
+ActiveRecord::Schema.define(version: 20170605112151) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,9 +73,21 @@ ActiveRecord::Schema.define(version: 20170603132143) do
     t.index ["api_attribute_id"], name: "index_api_validations_on_api_attribute_id", using: :btree
   end
 
+  create_table "permissions", force: :cascade do |t|
+    t.integer  "api_user_id"
+    t.integer  "api_resource_id"
+    t.text     "actions"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["api_resource_id"], name: "index_permissions_on_api_resource_id", using: :btree
+    t.index ["api_user_id"], name: "index_permissions_on_api_user_id", using: :btree
+  end
+
   add_foreign_key "api_associations", "api_resources"
   add_foreign_key "api_attributes", "api_resources"
   add_foreign_key "api_projects", "api_users", column: "created_by_id"
   add_foreign_key "api_resources", "api_projects"
   add_foreign_key "api_validations", "api_attributes"
+  add_foreign_key "permissions", "api_resources"
+  add_foreign_key "permissions", "api_users"
 end

@@ -27,10 +27,9 @@ class ApiValidation < ApplicationRecord
   private
 
   def formatted_advanced_options
-    opts = JSON.parse(advanced_options) rescue {}
-    return 'true' if opts.blank?
+    return 'true' if advanced_options.blank?
 
-    formatted_hash(opts)
+    formatted_hash(advanced_options)
   end
 
   def formatted_hash(hash)

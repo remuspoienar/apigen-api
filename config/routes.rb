@@ -5,6 +5,7 @@ Rails.application.routes.draw do
       resources :api_projects, only: [:index, :create, :show, :update, :destroy] do
         get :launch, on: :member
         get :shutdown, on: :member
+        get :permissions, on: :member
       end
 
       resources :trait_options, only: [:index]
@@ -21,10 +22,10 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   post '/sign_in' => 'sessions#create'
-  post '/sign_up' => 'users#create'
-
   get '/sign_out' => 'sessions#destroy'
 
+  get '/api_users' => 'users#index'
+  post '/sign_up' => 'users#create'
   get '/me' => 'users#me'
 
 end

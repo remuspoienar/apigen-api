@@ -3,14 +3,17 @@ class ApiResource < ApplicationRecord
 
   has_many :api_attributes, dependent: :destroy, inverse_of: :api_resource
   has_many :api_associations, dependent: :destroy, inverse_of: :api_resource
+  has_many :permissions, dependent: :destroy, inverse_of: :api_resource
 
   validates_uniqueness_of :name, scope: :api_project_id
   validates_presence_of :name, :api_project
 
   accepts_nested_attributes_for :api_attributes, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :api_associations, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :permissions, reject_if: :all_blank, allow_destroy: true
 
-  before_save :set_last_table_name
+  before_save :set_last_table_name, :capitalize_name
+  after_create :create_admin_permissions
 
   def as_json(opts={})
     result = self.attributes.symbolize_keys.except(:api_project_id, :created_at, :updated_at)
@@ -18,6 +21,7 @@ class ApiResource < ApplicationRecord
     result[:api_attributes] = self.api_attributes.to_a.map{|api_attribute| api_attribute.as_json }
     result[:api_associations] = self.api_associations.to_a.map{|api_association| api_association.as_json }
     result[:reverse_associations] = self.implicit_belongs_to_associations
+    result[:permissions] = self.permissions.to_a.map(&:as_json)
 
     result
   end
@@ -56,6 +60,16 @@ class ApiResource < ApplicationRecord
           optional: !assoc.mandatory
       }
     end
+  end
+
+  def create_admin_permissions
+    Permission.create_for_admin(self)
+  end
+
+  private
+
+  def capitalize_name
+    self.name.capitalize!
   end
 
   def set_last_table_name

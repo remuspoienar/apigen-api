@@ -1,7 +1,7 @@
 class ApiAttribute < ApplicationRecord
   belongs_to :api_resource
 
-  has_many :api_validations, inverse_of: :api_attribute
+  has_many :api_validations, inverse_of: :api_attribute, dependent: :destroy
 
   validates_uniqueness_of :name, scope: :api_resource_id
   validates_presence_of :name, :db_type, :api_resource
