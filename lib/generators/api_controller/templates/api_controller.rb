@@ -1,6 +1,7 @@
 <<-CODE
 class #{controller_class_name}Controller < ApplicationController
   before_action :set_#{file_name}, only: [:show, :update, :destroy]
+  before_action :authorize_request
 
   # GET /#{plural_file_name}
   def index

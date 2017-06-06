@@ -12,6 +12,7 @@ class Api::V1::ApiProjectsController < ApplicationController
 
   def create
     api_project = current_user.api_projects.create!(create_api_project_params)
+    api_project.set_generator_app_url(request.env['HTTP_HOST'])
     api_project.generate_code
     render json: {}, status: :created
   end
@@ -19,6 +20,7 @@ class Api::V1::ApiProjectsController < ApplicationController
   def update
     api_project = current_user.api_projects.find(params[:id])
     api_project.update!(update_api_project_params)
+    api_project.set_generator_app_url(request.env['HTTP_HOST'])
     api_project.generate_code
     render json: {}, status: :ok
   end
@@ -39,7 +41,9 @@ class Api::V1::ApiProjectsController < ApplicationController
   end
 
   def permissions
-    render json: @api_project.api_resources.map(&:permissions), status: :ok
+    authorized = current_user.authorized?(params[:operation], params[:resource], @api_project)
+
+    render json: {authorized: authorized}, status: :ok
   end
 
   private

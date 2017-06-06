@@ -3,6 +3,7 @@ require_relative './apigen-api/lib/generators/api_model/api_model_generator.rb'
 require_relative './apigen-api/lib/generators/api_migration/api_migration_generator.rb'
 require_relative './apigen-api/lib/generators/api_controller/api_controller_generator.rb'
 require_relative './apigen-api/lib/generators/backup_task/backup_task_generator.rb'
+require_relative './apigen-api/lib/generators/app_controller/app_controller_generator.rb'
 
 require 'active_record'
 require 'yaml'
@@ -10,6 +11,7 @@ require 'yaml'
 gem 'rack-cors'
 gem 'bcrypt'
 gem 'ransack'
+gem 'faraday'
 
 db_config = YAML.load_file('../apigen-api/config/database.yml')
 db_config['development']['pool'] = 5
@@ -20,6 +22,9 @@ models_path = File.join(Dir.pwd, '..', 'apigen-api', 'app', 'models')
 require_relative models_path + '/application_record.rb'
 models = Dir.entries(models_path)
 models.select { |file_name| !!(file_name =~ /\\A*.rb\\z/) }.each { |file_name| require_relative models_path + "/\#{file_name}" }
+
+run 'rm app/controllers/application_controller.rb'
+Rails::Generators.invoke(:app_controller, ['ApplicationController'])
 
 #{
 str = ''
@@ -41,6 +46,10 @@ concern :bulk_deletable do
   end
 ROUTE
 
+application <<-CONFIG
+config.permissions_url = '#{api_project.advanced_options['permissions_url']}'
+
+CONFIG
 
 application <<-CONFIG
 config.middleware.insert_before 0, Rack::Cors do

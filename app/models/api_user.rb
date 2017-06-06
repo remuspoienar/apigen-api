@@ -19,4 +19,10 @@ class ApiUser < ApplicationRecord
     self.attributes.symbolize_keys.except(:created_at, :updated_at, :password_digest)
   end
 
+  def authorized?(action, resource_table_name, api_project)
+    api_resource = api_project.api_resources.to_a.select {|api_resource| api_resource.table_name == resource_table_name }.first
+    permission = api_resource ? Permission.find_by(api_resource: api_resource, api_user: self) : nil
+    permission ? permission.actions.include?(action) : false
+  end
+
 end

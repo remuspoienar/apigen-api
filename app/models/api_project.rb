@@ -25,6 +25,12 @@ class ApiProject < ApplicationRecord
     name.downcase.gsub(' ', '_')
   end
 
+  def set_generator_app_url(url)
+    self.advanced_options[:generator_app_url] = url
+    self.advanced_options[:permissions_url] = "#{url}/api/v1/api_projects/#{id}/permissions"
+    save!
+  end
+
   def allocate_host
     base = 'http://localhost:'
     (3004..5000).each do |port|
