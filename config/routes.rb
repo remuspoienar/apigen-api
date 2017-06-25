@@ -6,6 +6,7 @@ Rails.application.routes.draw do
         get :launch, on: :member
         get :shutdown, on: :member
         get :permissions, on: :member
+        get :download, on: :member
       end
 
       resources :trait_options, only: [:index]

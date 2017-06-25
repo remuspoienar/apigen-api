@@ -1,6 +1,7 @@
 class Api::V1::ApiProjectsController < ApplicationController
 
-  before_action :set_api_project, only: [:show, :update, :destroy, :launch, :shutdown, :permissions]
+  before_action :set_api_project, only: [:show, :update, :destroy, :launch, :shutdown, :permissions, :download]
+  skip_before_action :authorize_request!, only: :download
 
   def index
     render json: current_user.api_projects, status: :ok
@@ -44,6 +45,11 @@ class Api::V1::ApiProjectsController < ApplicationController
     authorized = current_user.authorized?(params[:operation], params[:resource], @api_project)
 
     render json: {authorized: authorized}, status: :ok
+  end
+
+  def download
+    file = @api_project.download
+    send_data file, filename: File.basename(file), type: 'application/json'
   end
 
   private

@@ -26,6 +26,7 @@ class ApiProject < ApplicationRecord
   end
 
   def set_generator_app_url(url)
+    self.advanced_options ||= {}
     self.advanced_options[:generator_app_url] = url
     self.advanced_options[:permissions_url] = "#{url}/api/v1/api_projects/#{id}/permissions"
     save!
@@ -66,6 +67,12 @@ class ApiProject < ApplicationRecord
       system "kill -9 #{pid}"
     end
     update_attribute(:launched, false)
+  end
+
+  def download
+    filename = formatted_name + '__' + SecureRandom.uuid
+    system "cd ~/projects ; zip -r #{filename} ./#{formatted_name}"
+    File.open(Rails.root + "../#{filename}.zip")
   end
 
   private
